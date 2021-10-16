@@ -120,6 +120,7 @@ abstract contract IERC721Receiver {
 }
 
 contract ERC721 is ERC165, IERC721 {
+    // library SafeMath, Address, Counters에 정의된 함수를 사용하기 위해 using 필요
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
