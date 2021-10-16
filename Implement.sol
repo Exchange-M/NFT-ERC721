@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 import 'https://github.com/Exchange-M/NFT-ERC721/blob/master/ERC721.sol';
 
 contract ERC721Impl is ERC721 {
-        function _mint(address to, uint256 tokenId) internal {
+    function _mint(address to, uint256 tokenId) internal {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(xwtokenId), "ERC721: token already minted");
 

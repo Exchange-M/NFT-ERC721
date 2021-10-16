@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 library Address {
 
@@ -108,7 +109,7 @@ Mapping of interface ids to whether or not it's supported.
      */
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    constructor () internal {
+    constructor () {
         // 파생된 컨트랙트는 고유한 인터페이스에 대한 지원만 등록하면 됩니다.
         // ERC165 자체에 대한 지원만 여기에서 등록합니다.
         _registerInterface(_INTERFACE_ID_ERC165);
@@ -143,7 +144,7 @@ Mapping of interface ids to whether or not it's supported.
 /**
  * @dev ERC721 호환 컨트랙트의 필수 인터페이스
  */
-contract IERC721 is IERC165 {
+abstract contract IERC721 is IERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
@@ -151,12 +152,12 @@ contract IERC721 is IERC165 {
     /**
      * @dev `owner` 계정의 NFT의 개수를 반환합니다.
      */
-    function balanceOf(address owner) public view returns (uint256 balance);
+    function balanceOf(address owner) public virtual view returns (uint256 balance);
 
     /**
      * @dev `tokenId`에 의해 명시된 NFT의 소유자를 반환합니다.
      */
-    function ownerOf(uint256 tokenId) public view returns (address owner);
+    function ownerOf(uint256 tokenId) public virtual view returns (address owner);
 
     /**
      * @dev 특정 NFT (`tokenId`)를 한 계정(`from`)에서
@@ -170,7 +171,7 @@ contract IERC721 is IERC165 {
      * - 만일 호출자가 `from`이 아니라면, `approve` 또는
      * `setApproveForAll`를 통해 이 NFT의 전송을 허가받았어야 합니다.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public;
+    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual;
     /**
      * @dev 특정 NFT (`tokenId`)를 한 계정 (`from`)에서
      * 다른 계정(`to`)으로 전송합니다.
@@ -179,15 +180,15 @@ contract IERC721 is IERC165 {
      * - 만일 호출자가 `from`이 아니라면, `approve` 또는
      * `setApproveForAll`를 통해 이 NFT를 전송을 허가받았어야 합니다.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public;
-    function approve(address to, uint256 tokenId) public;
-    function getApproved(uint256 tokenId) public view returns (address operator);
+    function transferFrom(address from, address to, uint256 tokenId) public virtual;
+    function approve(address to, uint256 tokenId) public virtual;
+    function getApproved(uint256 tokenId) public virtual view returns (address operator);
 
-    function setApprovalForAll(address operator, bool _approved) public;
-    function isApprovedForAll(address owner, address operator) public view returns (bool);
+    function setApprovalForAll(address operator, bool _approved) public virtual;
+    function isApprovedForAll(address owner, address operator) public virtual view returns (bool);
 
 
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual;
 } 
 
 // https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v2.3.0/contracts/token/ERC721/IERC721Receiver.sol
@@ -196,7 +197,7 @@ contract IERC721 is IERC165 {
  * @dev ERC721 자산 컨트랙트로부터 safeTransfers를 지원하고 싶은
  * 컨트랙트를 위한 인터페이스입니다.
  */
-contract IERC721Receiver {
+abstract contract IERC721Receiver {
     /**
      * @notice NFT 수신 처리
      * @dev ERC721 스마트 컨트랙트는 `safeTransfer` 후 수신자가 구현한
@@ -211,8 +212,7 @@ contract IERC721Receiver {
      * @param data 특별한 형식이 없는 추가적인 데이터
      * @return bytes4 `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
      */
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
-    public returns (bytes4);
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data) public virtual returns (bytes4);
 }
 
 // https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v2.3.0/contracts/token/ERC721/ERC721.sol
@@ -253,7 +253,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    constructor () public {
+    constructor () {
         // ERC165를 통해 ERC721을 준수하도록 지원되는 인터페이스를 등록하세요
         _registerInterface(_INTERFACE_ID_ERC721);
     }
@@ -263,7 +263,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param owner 잔액을 요청하는 주소
      * @return uint256 전달받은 주소가 보유한 수량
      */
-    function balanceOf(address owner) public view returns (uint256) {
+    function balanceOf(address owner) public override view returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
 
         return _ownedTokensCount[owner].current();
@@ -274,7 +274,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 소유자를 요청하는 토큰의 ID
      * @return address 주어진 토큰 ID의 현재 표시된 소유자
      */
-    function ownerOf(uint256 tokenId) public view returns (address) {
+    function ownerOf(uint256 tokenId) public override view returns (address) {
         address owner = _tokenOwner[tokenId];
         require(owner != address(0), "ERC721: owner query for nonexistent token");
 
@@ -289,7 +289,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param to address 주어진 토큰 ID에 대해 승인할 주소
      * @param tokenId uint256 승인하고자 하는 토큰 ID
      */
-    function approve(address to, uint256 tokenId) public {
+    function approve(address to, uint256 tokenId) public override {
         address owner = ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
@@ -307,7 +307,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 승인된 주소를 요청하는 토큰의 ID
      * @return address 주어진 토큰 ID에 대해 현재 승인된 주소
      */
-    function getApproved(uint256 tokenId) public view returns (address) {
+    function getApproved(uint256 tokenId) public override view returns (address) {
         require(_exists(tokenId), "ERC721: approved query for nonexistent token");
 
         return _tokenApprovals[tokenId];
@@ -319,7 +319,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param to 승인을 설정하고자 하는 운영자의 주소
      * @param approved 설정하고자 하는 승인의 상태를 나타냅니다
      */
-    function setApprovalForAll(address to, bool approved) public {
+    function setApprovalForAll(address to, bool approved) public override {
         require(to != msg.sender, "ERC721: approve to caller");
 
         _operatorApprovals[msg.sender][to] = approved;
@@ -332,7 +332,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param operator 승인을 조회하고자 하는 운영자 주소
      * @return bool 주어진 운영자가 주어진 소유자로부터 승인되었는지 여부
      */
-    function isApprovedForAll(address owner, address operator) public view returns (bool) {
+    function isApprovedForAll(address owner, address operator) public override view returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
@@ -344,7 +344,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param to 주어진 토큰 ID의 소유권을 받을 주소
      * @param tokenId 전송할 토큰의 uint256 ID
      */
-    function transferFrom(address from, address to, uint256 tokenId) public {
+    function transferFrom(address from, address to, uint256 tokenId) public override {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721: transfer caller is not owner nor approved");
 
@@ -362,7 +362,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param to 주어진 토큰 ID의 소유권을 받을 주소
      * @param tokenId 전송할 토큰의 uint256 ID
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -378,7 +378,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId 전송할 토큰의 uint256 ID
      * @param _data 안전한 전송 검사와 함께 전송하고자 하는 바이트 데이터
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public override {
         transferFrom(from, to, tokenId);
         require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
@@ -512,7 +512,7 @@ contract CharactorByERC721 is ERC721{
     Charactor[] public charactors; // default: [] 
     address public owner;          // 컨트랙트 소유자
 
-    constructor () public {
+    constructor () {
         owner = msg.sender; 
     }
 
