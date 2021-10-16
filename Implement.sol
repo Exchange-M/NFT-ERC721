@@ -1,11 +1,15 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 import 'https://github.com/Exchange-M/NFT-ERC721/blob/master/ERC721.sol';
 
-contract ERC721Impl is ERC721 {
+contract ERC721_Minty is ERC721 {
+    // Counters.Counter 타입인 _ownedTokensCount[uint]가 library Counters에 정의된 increment(), decrement(), current()를 호출하기 위해 필요
+    using Counters for Counters.Counter;
+    
     function _mint(address to, uint256 tokenId) internal {
         require(to != address(0), "ERC721: mint to the zero address");
-        require(!_exists(xwtokenId), "ERC721: token already minted");
+        require(!_exists(tokenId), "ERC721: token already minted");
 
         _tokenOwner[tokenId] = to;
         _ownedTokensCount[to].increment();
@@ -14,7 +18,7 @@ contract ERC721Impl is ERC721 {
     }
 }
 
-contract CharactorByERC721 is ERC721Impl{
+contract CharactorByERC721 is ERC721_Minty{
     struct Charactor {
         string  name;  // 캐릭터 이름
         uint256 level; // 캐릭터 레벨
@@ -23,7 +27,7 @@ contract CharactorByERC721 is ERC721Impl{
     Charactor[] public charactors; // default: [] 
     address public owner;          // 컨트랙트 소유자
 
-    constructor () public {
+    constructor () {
         owner = msg.sender; 
     }
 
