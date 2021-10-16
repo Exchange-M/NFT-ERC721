@@ -256,3 +256,8 @@ contract ERC721 is ERC165, IERC721 {
         }
     }
 }
+
+// ERC721 인터페이스 외적으으로 mint 구현 인터페이스
+abstract contract Minty {
+    function _mint(address to, uint256 tokenId) internal virtual;
+}
