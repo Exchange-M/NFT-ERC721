@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.11;
 
 import 'https://github.com/Exchange-M/NFT-ERC721/blob/master/ERC721.sol';
 
